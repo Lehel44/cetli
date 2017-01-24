@@ -8,8 +8,10 @@ public class App
 {
     public static void main( String[] args )
     {
-        ShoppingList shoppingList = new ShoppingList();
-        shoppingList.createNodes();
-        shoppingList.setRelationShips();
+        Graph graph = new Graph();
+        graph.createNodes();
+        graph.setRelationShips();
+        RecommendationEngine recommendationEngine = new RecommendationEngine(graph);
+        recommendationEngine.processQuery();
     }
 }

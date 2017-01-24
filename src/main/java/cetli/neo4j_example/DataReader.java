@@ -2,7 +2,6 @@ package cetli.neo4j_example;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,16 +10,16 @@ import java.util.Set;
 
 public class DataReader {
 
-	private Map<String, Map<String, Map<String, String>>> ownersShoppingLists;
+	private Map<String, Map<String, Map<String, String>>> customersShoppingLists;
 	private Set<String> distinctProducts;
 	private Set<String> distinctshoppingLists;
-	private Set<String> distinctOwners;
+	private Set<String> distinctCustomers;
 	
 	public DataReader() {
-		ownersShoppingLists = new HashMap<>();
+		customersShoppingLists = new HashMap<>();
 		distinctProducts = new HashSet<>();
 		distinctshoppingLists = new HashSet<>();
-		distinctOwners = new HashSet<>();
+		distinctCustomers = new HashSet<>();
 	}
 
 	public void read() {
@@ -34,7 +33,7 @@ public class DataReader {
 			while (scanner.hasNextLine()) {
 				nextLine = scanner.nextLine();
 				String[] lineData = nextLine.split(",");
-				String ownerId = lineData[0];
+				String customerId = lineData[0];
 				String listId = lineData[1];
 				String objectId = lineData[2];
 				String productName = lineData[3];
@@ -45,35 +44,35 @@ public class DataReader {
 				distinctshoppingLists.add(listId);
 				
 				// Ha nincs még a map-ben a tulajdonos.
-				if (!ownersShoppingLists.containsKey(ownerId)) {
+				if (!customersShoppingLists.containsKey(customerId)) {
 					products = new HashMap<>();
 					products.put(objectId, productName);
 					shoppingLists = new HashMap<>();
 					shoppingLists.put(listId, products);
-					ownersShoppingLists.put(ownerId, shoppingLists);
+					customersShoppingLists.put(customerId, shoppingLists);
 					// Ha a tulajdonos benne van már a map-ben.
 				} else {
-					shoppingLists = ownersShoppingLists.get(ownerId);
+					shoppingLists = customersShoppingLists.get(customerId);
 					// Ha még nincs benne a tulajdonos ezen listája a map-ben.
 					if (!shoppingLists.containsKey(listId)) {
 						products = new HashMap<>();
 						products.put(objectId, productName);
 						shoppingLists.put(listId, products);
-						ownersShoppingLists.put(ownerId, shoppingLists);
+						customersShoppingLists.put(customerId, shoppingLists);
 						// Ha már benne van ezen terméklista a map-ben.
 					} else {
-						shoppingLists = ownersShoppingLists.get(ownerId);
+						shoppingLists = customersShoppingLists.get(customerId);
 						products = shoppingLists.get(listId);
 						products.put(objectId, productName);
 						shoppingLists.put(listId, products);
-						ownersShoppingLists.put(ownerId, shoppingLists);
+						customersShoppingLists.put(customerId, shoppingLists);
 					}
 				}
 
 			}
 			
-			for (String owner : ownersShoppingLists.keySet()) {
-				distinctOwners.add(owner);
+			for (String customer : customersShoppingLists.keySet()) {
+				distinctCustomers.add(customer);
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -82,12 +81,12 @@ public class DataReader {
 
 	}
 	
-	public Set<String> getDistinctOwners() {
-		return distinctOwners;
+	public Set<String> getDistinctCustomers() {
+		return distinctCustomers;
 	}
 
-	public Map<String, Map<String, Map<String, String>>> getOwnersShoppingLists() {
-		return ownersShoppingLists;
+	public Map<String, Map<String, Map<String, String>>> getCustomersShoppingLists() {
+		return customersShoppingLists;
 	}
 
 

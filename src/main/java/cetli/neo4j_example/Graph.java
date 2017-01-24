@@ -10,13 +10,13 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-public class ShoppingList {
+public class Graph {
 
 	private GraphDatabaseService graphDb;
 	private File database;
 	private DataReader dataReader;
 
-	public ShoppingList() {
+	public Graph() {
 		database = new File(Neo4jUtils.databasePath);
 		this.graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(database);
 		dataReader = new DataReader();
@@ -31,13 +31,12 @@ public class ShoppingList {
 				node.setProperty("name", product);
 			}
 			for (String shoppingList : dataReader.getDistinctshoppingLists()) {
-				Node node = graphDb.createNode(Labels.SHOPPINGLIST);
+				Node node = graphDb.createNode(Labels.SHOPPING_LIST);
 				node.setProperty("listId", shoppingList);
 			}
-			for (String owner : dataReader.getDistinctOwners()) {
-				Node node = graphDb.createNode(Labels.OWNER);
-				node.setProperty("ownerId", owner);
-				System.out.println(owner);
+			for (String customer : dataReader.getDistinctCustomers()) {
+				Node node = graphDb.createNode(Labels.CUSTOMER);
+				node.setProperty("customerId", customer);
 			}
 
 			tx.success();
@@ -47,12 +46,12 @@ public class ShoppingList {
 	public void setRelationShips() {
 
 		try (Transaction tx = graphDb.beginTx()) {
-			for (String ownerId : dataReader.getOwnersShoppingLists().keySet()) {
-				Node owner = graphDb.findNode(Labels.OWNER, "ownerId", ownerId);
-				Map<String, Map<String, String>> shoppingLists = dataReader.getOwnersShoppingLists().get(ownerId);
+			for (String customerId : dataReader.getCustomersShoppingLists().keySet()) {
+				Node customer = graphDb.findNode(Labels.CUSTOMER, "customerId", customerId);
+				Map<String, Map<String, String>> shoppingLists = dataReader.getCustomersShoppingLists().get(customerId);
 				for (String shoppingListId : shoppingLists.keySet()) {
-					Node shoppingList = graphDb.findNode(Labels.SHOPPINGLIST, "listId", shoppingListId);
-					ownsShoppingList(owner, shoppingList);
+					Node shoppingList = graphDb.findNode(Labels.SHOPPING_LIST, "listId", shoppingListId);
+					ownsShoppingList(customer, shoppingList);
 					Map<String, String> products = shoppingLists.get(shoppingListId);
 					for (Entry<String, String> productEntry : products.entrySet()) {
 						Node product = graphDb.findNode(Labels.PRODUCT, "name", productEntry.getValue());
@@ -71,9 +70,21 @@ public class ShoppingList {
 		return relationship;
 	}
 
-	public static Relationship ownsShoppingList(Node owner, Node shoppingList) {
-		Relationship relationship = owner.createRelationshipTo(shoppingList, RelationshipTypes.OWN);
+	public static Relationship ownsShoppingList(Node customer, Node shoppingList) {
+		Relationship relationship = customer.createRelationshipTo(shoppingList, RelationshipTypes.OWN);
 		return relationship;
 	}
 
+	public GraphDatabaseService getGraphDb() {
+		return graphDb;
+	}
+
+	public File getDatabase() {
+		return database;
+	}
+
+	public DataReader getDataReader() {
+		return dataReader;
+	}
+	
 }
